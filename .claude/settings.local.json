@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(docker compose build)",
+      "Bash(docker compose up)",
+      "Bash(docker compose down)",
+      "Bash(docker compose up -d)",
+      "Bash(docker exec starrupture-server ps aux)",
+      "Bash(docker exec starrupture-server find /home/steam/serverfiles -name \"*.log\" -type f)",
+      "Bash(docker exec starrupture-server find /home/steam/serverfiles -path \"*/Saved/Logs/*\" -type f)",
+      "Bash(docker exec starrupture-server find /home/steam/serverfiles -name \"*.log\" -o -name \"*.txt\")",
+      "Bash(docker exec starrupture-server find /home/steam/serverfiles/StarRupture -name \"*.log\" -o -name \"*.txt\")",
+      "Bash(docker exec starrupture-server ls -la \"/home/steam/serverfiles/StarRupture/Saved/\")",
+      "Bash(docker exec starrupture-server ls -la /home/steam/serverfiles/compatdata/pfx/drive_c/users/steamuser/AppData/Local/)",
+      "Bash(docker exec starrupture-server bash -c 'find /home/steam/serverfiles/compatdata -name \"\"*.log\"\" -type f 2>/dev/null | head -20')",
+      "Bash(docker exec starrupture-server bash -c 'find /home/steam/serverfiles -maxdepth 5 -newer /proc/1/cmdline -type f 2>/dev/null | head -20')"
+    ]
+  }
+}
