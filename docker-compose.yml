@@ -18,6 +18,12 @@ services:
       retries: 3
     # Stop grace period to allow server to shut down cleanly
     stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 8G
 
 volumes:
   server-data:
