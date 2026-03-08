@@ -93,6 +93,15 @@ else
     echo "[entrypoint] DSSettings.txt already exists, using existing config."
 fi
 
+# --- Deploy password files next to the server exe ---
+SERVER_EXE_DIR="$SERVER_DIR/StarRupture/Binaries/Win64"
+for PW_FILE in Password.json PlayerPassword.json; do
+    if [ -f "/home/steam/$PW_FILE" ] && [ ! -f "$SERVER_EXE_DIR/$PW_FILE" ]; then
+        cp "/home/steam/$PW_FILE" "$SERVER_EXE_DIR/$PW_FILE"
+        echo "[entrypoint] Deployed $PW_FILE"
+    fi
+done
+
 # --- Build server launch arguments ---
 LAUNCH_ARGS=(
     -Log

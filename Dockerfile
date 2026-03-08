@@ -33,9 +33,11 @@ RUN mkdir -p /home/steam/proton && \
 RUN mkdir -p /home/steam/serverfiles && \
     chown -R steam:steam /home/steam/serverfiles
 
-# Copy scripts
+# Copy scripts and config files
 COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam healthcheck.sh /home/steam/healthcheck.sh
+COPY --chown=steam:steam Password.json /home/steam/Password.json
+COPY --chown=steam:steam PlayerPassword.json /home/steam/PlayerPassword.json
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/healthcheck.sh
 
 # Switch to steam user
