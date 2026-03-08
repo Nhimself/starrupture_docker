@@ -5,7 +5,10 @@ services:
     restart: unless-stopped
     ports:
       - "${SERVER_PORT:-7777}:${SERVER_PORT:-7777}/udp"
+      - "${SERVER_PORT:-7777}:${SERVER_PORT:-7777}/tcp"
       - "${QUERY_PORT:-27015}:${QUERY_PORT:-27015}/udp"
+      - "${QUERY_PORT:-27015}:${QUERY_PORT:-27015}/tcp"
+      #- "30020:30020/tcp"
     volumes:
       - server-data:/home/steam/serverfiles
     env_file:

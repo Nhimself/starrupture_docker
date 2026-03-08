@@ -2,16 +2,15 @@
 set -e
 
 # --- Configuration from environment ---
-SERVER_NAME="${SERVER_NAME:-StarRupture Server}"
 SERVER_PORT="${SERVER_PORT:-7777}"
-QUERY_PORT="${QUERY_PORT:-27015}"
-MULTIHOME="${MULTIHOME:-0.0.0.0}"
+START_NEW_GAME="${START_NEW_GAME:-true}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
 
 STEAMCMD="/home/steam/steamcmd/steamcmd.sh"
 SERVER_DIR="/home/steam/serverfiles"
 PROTON_DIR="/home/steam/proton"
 SERVER_EXE="StarRupture/Binaries/Win64/StarRuptureServerEOS-Win64-Shipping.exe"
+DS_SETTINGS="$SERVER_DIR/StarRupture/Binaries/Win64/DSSettings.txt"
 
 # Proton environment
 export STEAM_COMPAT_DATA_PATH="${SERVER_DIR}/compatdata"
@@ -77,13 +76,26 @@ if [ ! -f "$SERVER_DIR/$SERVER_EXE" ]; then
     exit 1
 fi
 
-# --- Build server launch arguments ---
+# --- Create DSSettings.txt if it doesn't exist ---
+if [ ! -f "$DS_SETTINGS" ]; then
+    echo "[entrypoint] Creating default DSSettings.txt (StartNewGame=$START_NEW_GAME)..."
+    cat > "$DS_SETTINGS" <<EOF
+{
+  "SessionName": "MySaveGame",
+  "SaveGameInterval": "300",
+  "StartNewGame": "$START_NEW_GAME",
+  "LoadSavedGame": "false",
+  "SaveGameName": "AutoSave0.sav"
+}
+EOF
+else
+    echo "[entrypoint] DSSettings.txt already exists, using existing config."
+fi
+
+# --- Build server launch arguments (match Windows: just -Log -Port) ---
 LAUNCH_ARGS=(
     -Log
     -Port="$SERVER_PORT"
-    -QueryPort="$QUERY_PORT"
-    -MULTIHOME="$MULTIHOME"
-    -ServerName="$SERVER_NAME"
 )
 
 # Append any extra arguments passed to the container
@@ -93,10 +105,9 @@ fi
 
 # --- Launch server ---
 echo "[entrypoint] Starting StarRupture Dedicated Server..."
-echo "[entrypoint]   Name:      $SERVER_NAME"
-echo "[entrypoint]   Port:      $SERVER_PORT"
-echo "[entrypoint]   QueryPort: $QUERY_PORT"
-echo "[entrypoint]   Multihome: $MULTIHOME"
+echo "[entrypoint]   Port: $SERVER_PORT"
+echo "[entrypoint]   Args: ${LAUNCH_ARGS[*]}"
+echo "[entrypoint]   DSSettings: $DS_SETTINGS"
 
 cd "$SERVER_DIR"
 
