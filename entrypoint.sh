@@ -97,16 +97,13 @@ fi
 LAUNCH_ARGS=(
     -Log
     -Port="$SERVER_PORT"
+    -RCWebControlDisable
+    -RCWebInterfaceDisable
 )
 
-# MULTIHOME is required in Docker to advertise the correct public IP
-# Without it, the server registers Docker's internal IP with EOS
+# Add MULTIHOME if set
 if [ -n "$MULTIHOME" ]; then
     LAUNCH_ARGS+=(-MULTIHOME="$MULTIHOME")
-else
-    echo "[entrypoint] WARNING: MULTIHOME not set. The server will advertise Docker's"
-    echo "[entrypoint]          internal IP to EOS, which will prevent external connections."
-    echo "[entrypoint]          Set MULTIHOME to your server's public IP in .env"
 fi
 
 # Append any extra arguments passed to the container
