@@ -3,6 +3,7 @@ set -e
 
 # --- Configuration from environment ---
 SERVER_PORT="${SERVER_PORT:-7777}"
+MULTIHOME="${MULTIHOME:-}"
 START_NEW_GAME="${START_NEW_GAME:-true}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
 
@@ -92,11 +93,21 @@ else
     echo "[entrypoint] DSSettings.txt already exists, using existing config."
 fi
 
-# --- Build server launch arguments (match Windows: just -Log -Port) ---
+# --- Build server launch arguments ---
 LAUNCH_ARGS=(
     -Log
     -Port="$SERVER_PORT"
 )
+
+# MULTIHOME is required in Docker to advertise the correct public IP
+# Without it, the server registers Docker's internal IP with EOS
+if [ -n "$MULTIHOME" ]; then
+    LAUNCH_ARGS+=(-MULTIHOME="$MULTIHOME")
+else
+    echo "[entrypoint] WARNING: MULTIHOME not set. The server will advertise Docker's"
+    echo "[entrypoint]          internal IP to EOS, which will prevent external connections."
+    echo "[entrypoint]          Set MULTIHOME to your server's public IP in .env"
+fi
 
 # Append any extra arguments passed to the container
 if [ $# -gt 0 ]; then
@@ -105,9 +116,9 @@ fi
 
 # --- Launch server ---
 echo "[entrypoint] Starting StarRupture Dedicated Server..."
-echo "[entrypoint]   Port: $SERVER_PORT"
-echo "[entrypoint]   Args: ${LAUNCH_ARGS[*]}"
-echo "[entrypoint]   DSSettings: $DS_SETTINGS"
+echo "[entrypoint]   Port:      $SERVER_PORT"
+echo "[entrypoint]   Multihome: ${MULTIHOME:-<not set>}"
+echo "[entrypoint]   Args:      ${LAUNCH_ARGS[*]}"
 
 cd "$SERVER_DIR"
 
