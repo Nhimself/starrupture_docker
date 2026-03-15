@@ -4,16 +4,16 @@ set -e
 # --- Configuration from environment ---
 SERVER_PORT="${SERVER_PORT:-7777}"
 MULTIHOME="${MULTIHOME:-}"
-START_NEW_GAME="${START_NEW_GAME:-false}"
-LOAD_SAVE_GAME="${LOAD_SAVE_GAME:-true}"
+SESSION_NAME="${SESSION_NAME:-My StarRupture Server}"
+SAVE_GAME_INTERVAL="${SAVE_GAME_INTERVAL:-300}"
+RCON_PORT="${RCON_PORT:-}"
+RCON_PASSWORD="${RCON_PASSWORD:-}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
 
 STEAMCMD="/home/steam/steamcmd/steamcmd.sh"
 SERVER_DIR="/home/steam/serverfiles"
-SAVEGAME_DIR="$SERVER_DIR/StarRupture/Saved/SaveGames"
 PROTON_DIR="/home/steam/proton"
 SERVER_EXE="StarRupture/Binaries/Win64/StarRuptureServerEOS-Win64-Shipping.exe"
-DS_SETTINGS="$SERVER_DIR/StarRupture/Binaries/Win64/DSSettings.txt"
 
 # Proton environment
 export STEAM_COMPAT_DATA_PATH="${SERVER_DIR}/compatdata"
@@ -21,6 +21,7 @@ export STEAM_COMPAT_CLIENT_INSTALL_PATH="/home/steam/steamcmd"
 
 # --- Signal handling for graceful shutdown ---
 SERVER_PID=""
+BOOTSTRAP_PID=""
 LOG_PID=""
 SERVER_LOG="$SERVER_DIR/StarRupture/Saved/Logs/StarRupture.log"
 
@@ -29,10 +30,13 @@ shutdown() {
     if [ -n "$LOG_PID" ]; then
         kill "$LOG_PID" 2>/dev/null || true
     fi
-    if [ -n "$SERVER_PID" ]; then
-        kill -SIGINT "$SERVER_PID" 2>/dev/null || true
-        wait "$SERVER_PID" 2>/dev/null || true
-    fi
+    # BOOTSTRAP_PID is set during first-run bootstrap; SERVER_PID during normal run
+    for PID in "$BOOTSTRAP_PID" "$SERVER_PID"; do
+        if [ -n "$PID" ]; then
+            kill -SIGINT "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+        fi
+    done
     echo "[entrypoint] Server stopped."
     exit 0
 }
@@ -40,25 +44,25 @@ shutdown() {
 trap shutdown SIGTERM SIGINT
 
 # --- Install / Update server ---
-if [ "$UPDATE_ON_START" = "true" ]; then
+# Always run SteamCMD on first install (binary missing), regardless of UPDATE_ON_START.
+# UPDATE_ON_START=false only skips the update check when the server is already installed.
+NEEDS_INSTALL=false
+if [ ! -f "$SERVER_DIR/$SERVER_EXE" ]; then
+    echo "[entrypoint] Server binary not found — running initial install..."
+    NEEDS_INSTALL=true
+fi
+
+if [ "$UPDATE_ON_START" = "true" ] || [ "$NEEDS_INSTALL" = "true" ]; then
     echo "[entrypoint] Updating StarRupture Dedicated Server (App 3809400)..."
-    MAX_RETRIES=3
-    RETRY=0
-    until [ "$RETRY" -ge "$MAX_RETRIES" ]; do
-        "$STEAMCMD" \
-            +@sSteamCmdForcePlatformType windows \
-            +force_install_dir "$SERVER_DIR" \
-            +login anonymous \
-            +app_update 3809400 validate \
-            +quit && break
-        RETRY=$((RETRY + 1))
-        echo "[entrypoint] SteamCMD failed (attempt $RETRY/$MAX_RETRIES), retrying in 5s..."
-        sleep 5
-    done
-    if [ "$RETRY" -ge "$MAX_RETRIES" ]; then
-        echo "[entrypoint] ERROR: SteamCMD failed after $MAX_RETRIES attempts."
-        exit 1
-    fi
+    "$STEAMCMD" \
+        +@ShutdownOnFailedCommand 1 \
+        +@NoPromptForPassword 1 \
+        +@sSteamCmdForcePlatformBitness 64 \
+        +@sSteamCmdForcePlatformType windows \
+        +force_install_dir "$SERVER_DIR" \
+        +login anonymous \
+        +app_update 3809400 validate \
+        +quit
     echo "[entrypoint] Update complete."
 fi
 
@@ -68,48 +72,79 @@ mkdir -p "$STEAM_COMPAT_DATA_PATH"
 if [ ! -d "$STEAM_COMPAT_DATA_PATH/pfx" ]; then
     echo "[entrypoint] Initializing Proton prefix (first run, this may take a minute)..."
     cd "$SERVER_DIR"
-    "$PROTON_DIR/proton" run cmd /c "echo Prefix initialized" || true
+    xvfb-run -a "$PROTON_DIR/proton" run cmd /c "echo Prefix initialized" || true
+    if [ ! -d "$STEAM_COMPAT_DATA_PATH/pfx" ]; then
+        echo "[entrypoint] ERROR: Proton prefix failed to initialize. Check Proton/Wine setup."
+        exit 1
+    fi
     echo "[entrypoint] Proton prefix initialized."
 fi
 
 # --- Verify server binary exists ---
+# Catches edge cases where SteamCMD succeeded but the binary is still missing.
 if [ ! -f "$SERVER_DIR/$SERVER_EXE" ]; then
     echo "[entrypoint] ERROR: Server binary not found at $SERVER_DIR/$SERVER_EXE"
-    echo "[entrypoint] The server may not have downloaded correctly. Check SteamCMD output above."
+    echo "[entrypoint] SteamCMD reported success but the binary is missing — check the SteamCMD output above."
     exit 1
 fi
 
-# --- Create DSSettings.txt if it doesn't exist ---
-if [ ! -f "$DS_SETTINGS" ]; then
-    echo "[entrypoint] Creating default DSSettings.txt (StartNewGame=$START_NEW_GAME & LOAD_SAVE_GAME=$LOAD_SAVE_GAME)"
-    cat > "$DS_SETTINGS" <<EOF
-{
-  "SessionName": "sr.mcros.dk",
-  "SaveGameInterval": "300",
-  "StartNewGame": "$START_NEW_GAME",
-  "LoadSavedGame": "$LOAD_SAVE_GAME",
-  "SaveGameName": "AutoSave0.sav"
-}
-EOF
-else
-    echo "[entrypoint] DSSettings.txt already exists, using existing config."
-fi
 
-# --- Deploy savegame ---
-if [ "$START_NEW_GAME" = true ]; then
-  echo "Loading default savegame (START_NEW_GAME=$START_NEW_GAME)"
-  mkdir -p "$SAVEGAME_DIR"
-  cp "/home/steam/AutoSave0.sav" "$SAVEGAME_DIR" 
-  cp "/home/steam/AutoSave0.met" "$SAVEGAME_DIR"
-fi
+# Required for ModLoader DLL proxy — must be set before any server launch
+export WINEDLLOVERRIDES="dwmapi=n,b"
 
-# --- Deploy password files next to the server exe ---
 SERVER_EXE_DIR="$SERVER_DIR/StarRupture/Binaries/Win64"
-for PW_FILE in Password.json PlayerPassword.json; do
-    if [ -f "/home/steam/$PW_FILE" ] && [ ! -f "$SERVER_EXE_DIR/$PW_FILE" ]; then
-        cp "/home/steam/$PW_FILE" "$SERVER_EXE_DIR/$PW_FILE"
-        echo "[entrypoint] Deployed $PW_FILE"
+PLUGINS_CONFIG_DIR="$SERVER_EXE_DIR/Plugins/config"
+
+# --- Install ModLoader (if not already installed) ---
+if [ ! -f "$SERVER_EXE_DIR/dwmapi.dll" ]; then
+    echo "[entrypoint] Installing StarRupture ModLoader..."
+    MODLOADER_URL=$(wget -qO- https://api.github.com/repos/AlienXAXS/StarRupture-ModLoader/releases/latest \
+        | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print(next(a['browser_download_url'] for a in assets if 'Server' in a['name'] and a['name'].endswith('.zip')))")
+    wget -q "$MODLOADER_URL" -O /tmp/modloader.zip
+    unzip -q /tmp/modloader.zip -d "$SERVER_EXE_DIR"
+    rm /tmp/modloader.zip
+    echo "[entrypoint] ModLoader installed."
+fi
+
+# --- Bootstrap: first launch to let the ModLoader generate plugin config files ---
+# Plugins are disabled by default on first run. We start the server briefly,
+# wait for the INI files to appear, then kill it and enable all plugins before
+# the real launch below.
+if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
+    echo "[entrypoint] First run detected — bootstrapping ModLoader plugin configs..."
+    cd "$SERVER_DIR"
+    xvfb-run -a "$PROTON_DIR/proton" run "./$SERVER_EXE" -Log &
+    BOOTSTRAP_PID=$!
+
+    echo "[entrypoint] Waiting for plugin config files to be generated (up to 120s)..."
+    WAIT=0
+    until [ -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ] || [ "$WAIT" -ge 120 ]; do
+        sleep 2
+        WAIT=$((WAIT + 2))
+    done
+
+    kill "$BOOTSTRAP_PID" 2>/dev/null || true
+    wait "$BOOTSTRAP_PID" 2>/dev/null || true
+    BOOTSTRAP_PID=""
+
+    if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
+        echo "[entrypoint] WARNING: Bootstrap timed out — plugin configs were not generated. Plugins may be inactive."
+    else
+        echo "[entrypoint] Bootstrap complete."
     fi
+fi
+
+# --- Enable all server plugins ---
+mkdir -p "$PLUGINS_CONFIG_DIR"
+for PLUGIN in KeepTicking RailJunctionFixer ServerUtility; do
+    INI_FILE="$PLUGINS_CONFIG_DIR/$PLUGIN.ini"
+    if [ -f "$INI_FILE" ]; then
+        sed -i 's/^Enabled=0/Enabled=1/' "$INI_FILE"
+    else
+        # Safety fallback: create if still missing after bootstrap
+        printf "[Plugin]\nEnabled=1\n" > "$INI_FILE"
+    fi
+    echo "[entrypoint] Plugin enabled: $PLUGIN"
 done
 
 # --- Build server launch arguments ---
@@ -118,11 +153,21 @@ LAUNCH_ARGS=(
     -Port="$SERVER_PORT"
     -RCWebControlDisable
     -RCWebInterfaceDisable
+    -SessionName="$SESSION_NAME"
+    -SaveGameInterval="$SAVE_GAME_INTERVAL"
 )
 
 # Add MULTIHOME if set
 if [ -n "$MULTIHOME" ]; then
     LAUNCH_ARGS+=(-MULTIHOME="$MULTIHOME")
+fi
+
+# Add RCON if configured
+if [ -n "$RCON_PORT" ]; then
+    LAUNCH_ARGS+=(-RconPort="$RCON_PORT")
+fi
+if [ -n "$RCON_PASSWORD" ]; then
+    LAUNCH_ARGS+=(-RconPassword="$RCON_PASSWORD")
 fi
 
 # Append any extra arguments passed to the container
@@ -134,7 +179,8 @@ fi
 echo "[entrypoint] Starting StarRupture Dedicated Server..."
 echo "[entrypoint]   Port:      $SERVER_PORT"
 echo "[entrypoint]   Multihome: ${MULTIHOME:-<not set>}"
-echo "[entrypoint]   Args:      ${LAUNCH_ARGS[*]}"
+echo "[entrypoint]   Session:   $SESSION_NAME"
+echo "[entrypoint]   RCON port: ${RCON_PORT:-<disabled>}"
 
 cd "$SERVER_DIR"
 
@@ -146,7 +192,7 @@ echo "[entrypoint] Server launched with PID $SERVER_PID, waiting for log output.
 
 # Wait for the log file to appear, then tail it to stdout
 WAIT_COUNT=0
-while [ ! -f "$SERVER_LOG" ] && [ "$WAIT_COUNT" -lt 60 ]; do
+while [ ! -f "$SERVER_LOG" ] && [ "$WAIT_COUNT" -lt 60 ] && kill -0 "$SERVER_PID" 2>/dev/null; do
     sleep 1
     WAIT_COUNT=$((WAIT_COUNT + 1))
 done
@@ -160,6 +206,6 @@ else
 fi
 
 # Wait for server process (allows signal handling)
-wait "$SERVER_PID"
-EXIT_CODE=$?
+# Use || to prevent set -e from exiting before we can capture and log the exit code
+wait "$SERVER_PID" && EXIT_CODE=0 || EXIT_CODE=$?
 echo "[entrypoint] Server process exited with code $EXIT_CODE"

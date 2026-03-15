@@ -18,6 +18,7 @@ RUN dpkg --add-architecture i386 && \
         procps \
         python3 \
         wget \
+        unzip \
     && rm -rf /var/lib/apt/lists/* \
     && cat /proc/sys/kernel/random/uuid | tr -d '-' > /etc/machine-id
 
@@ -33,22 +34,17 @@ RUN mkdir -p /home/steam/proton && \
 RUN mkdir -p /home/steam/serverfiles && \
     chown -R steam:steam /home/steam/serverfiles
 
-# Copy scripts and config files
+# Copy scripts
 COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam healthcheck.sh /home/steam/healthcheck.sh
-COPY --chown=steam:steam Password.json /home/steam/Password.json
-COPY --chown=steam:steam PlayerPassword.json /home/steam/PlayerPassword.json
-COPY --chown=steam:steam AutoSave0.sav /home/steam/AutoSave0.sav
-COPY --chown=steam:steam AutoSave0.met /home/steam/AutoSave0.met
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/healthcheck.sh
 
 # Switch to steam user
 USER steam
 WORKDIR /home/steam
 
-# Ports: Game (UDP) and Query (UDP)
+# Game port (UDP). RCON/Steam Query port is TCP and configured via RCON_PORT env var.
 EXPOSE 7777/udp
-EXPOSE 27015/udp
 
 # Persist game files across container restarts
 VOLUME ["/home/steam/serverfiles"]

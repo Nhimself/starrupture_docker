@@ -15,7 +15,8 @@
       "Bash(docker exec starrupture-server ls -la \"/home/steam/serverfiles/StarRupture/Saved/\")",
       "Bash(docker exec starrupture-server ls -la /home/steam/serverfiles/compatdata/pfx/drive_c/users/steamuser/AppData/Local/)",
       "Bash(docker exec starrupture-server bash -c 'find /home/steam/serverfiles/compatdata -name \"\"*.log\"\" -type f 2>/dev/null | head -20')",
-      "Bash(docker exec starrupture-server bash -c 'find /home/steam/serverfiles -maxdepth 5 -newer /proc/1/cmdline -type f 2>/dev/null | head -20')"
+      "Bash(docker exec starrupture-server bash -c 'find /home/steam/serverfiles -maxdepth 5 -newer /proc/1/cmdline -type f 2>/dev/null | head -20')",
+      "WebFetch(domain:api.github.com)"
     ]
   }
 }
