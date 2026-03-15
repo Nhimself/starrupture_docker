@@ -6,8 +6,10 @@ services:
     ports:
       # UDP only — do NOT expose TCP (Remote Control exploit CVE)
       - "${SERVER_PORT:-7777}:${SERVER_PORT:-7777}/udp"
-      # RCON — bound to localhost only, never exposed publicly
-      - "127.0.0.1:${RCON_PORT:-27015}:${RCON_PORT:-27015}/tcp"
+      # RCON (TCP) — bound to localhost only for admin commands
+      - "${RCON_PORT:-27015}:${RCON_PORT:-27015}/tcp"
+      # A2S Steam Query (UDP) — same port, publicly exposed for server browser
+      - "${RCON_PORT:-27015}:${RCON_PORT:-27015}/udp"
     volumes:
       - starrupture-data:/home/steam/serverfiles
       # Save games are bind-mounted to a local folder so they survive "docker compose down -v"
