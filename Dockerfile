@@ -38,6 +38,8 @@ COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam healthcheck.sh /home/steam/healthcheck.sh
 COPY --chown=steam:steam Password.json /home/steam/Password.json
 COPY --chown=steam:steam PlayerPassword.json /home/steam/PlayerPassword.json
+COPY --chown=steam:steam AutoSave0.sav /home/steam/AutoSave0.sav
+COPY --chown=steam:steam AutoSave0.met /home/steam/AutoSave0.met
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/healthcheck.sh
 
 # Switch to steam user

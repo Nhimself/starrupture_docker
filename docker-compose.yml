@@ -7,7 +7,10 @@ services:
       # UDP only — do NOT expose TCP (Remote Control exploit CVE)
       - "${SERVER_PORT:-7777}:${SERVER_PORT:-7777}/udp"
     volumes:
-      - server-data:/home/steam/serverfiles
+      - starrupture-data:/home/steam/serverfiles
+      - ./DSSettings.txt://home/steam/serverfiles/StarRupture/Binaries/Win64/DSSettings.txt
+      #- ./AutoSave0.sav:/home/steam/serverfiles/StarRupture/Saved/SaveGames/AutoSave0.sav
+      #- ./AutoSave0.met:/home/steam/serverfiles/StarRupture/Saved/SaveGames/AutoSave0.met
     env_file:
       - .env
     healthcheck:
@@ -26,4 +29,4 @@ services:
           memory: 8G
 
 volumes:
-  server-data:
+  starrupture-data:

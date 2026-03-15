@@ -4,11 +4,13 @@ set -e
 # --- Configuration from environment ---
 SERVER_PORT="${SERVER_PORT:-7777}"
 MULTIHOME="${MULTIHOME:-}"
-START_NEW_GAME="${START_NEW_GAME:-true}"
+START_NEW_GAME="${START_NEW_GAME:-false}"
+LOAD_SAVE_GAME="${LOAD_SAVE_GAME:-true}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
 
 STEAMCMD="/home/steam/steamcmd/steamcmd.sh"
 SERVER_DIR="/home/steam/serverfiles"
+SAVEGAME_DIR="$SERVER_DIR/StarRupture/Saved/SaveGames"
 PROTON_DIR="/home/steam/proton"
 SERVER_EXE="StarRupture/Binaries/Win64/StarRuptureServerEOS-Win64-Shipping.exe"
 DS_SETTINGS="$SERVER_DIR/StarRupture/Binaries/Win64/DSSettings.txt"
@@ -79,18 +81,26 @@ fi
 
 # --- Create DSSettings.txt if it doesn't exist ---
 if [ ! -f "$DS_SETTINGS" ]; then
-    echo "[entrypoint] Creating default DSSettings.txt (StartNewGame=$START_NEW_GAME)..."
+    echo "[entrypoint] Creating default DSSettings.txt (StartNewGame=$START_NEW_GAME & LOAD_SAVE_GAME=$LOAD_SAVE_GAME)"
     cat > "$DS_SETTINGS" <<EOF
 {
-  "SessionName": "MySaveGame",
+  "SessionName": "sr.mcros.dk",
   "SaveGameInterval": "300",
   "StartNewGame": "$START_NEW_GAME",
-  "LoadSavedGame": "false",
+  "LoadSavedGame": "$LOAD_SAVE_GAME",
   "SaveGameName": "AutoSave0.sav"
 }
 EOF
 else
     echo "[entrypoint] DSSettings.txt already exists, using existing config."
+fi
+
+# --- Deploy savegame ---
+if [ "$START_NEW_GAME" = true ]; then
+  echo "Loading default savegame (START_NEW_GAME=$START_NEW_GAME)"
+  mkdir -p "$SAVEGAME_DIR"
+  cp "/home/steam/AutoSave0.sav" "$SAVEGAME_DIR" 
+  cp "/home/steam/AutoSave0.met" "$SAVEGAME_DIR"
 fi
 
 # --- Deploy password files next to the server exe ---
