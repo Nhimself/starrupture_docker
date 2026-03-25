@@ -14,9 +14,14 @@ services:
       - starrupture-data:/home/steam/serverfiles
       # Save games are bind-mounted to a local folder so they survive "docker compose down -v"
       # or any accidental volume wipe. Back this folder up externally.
+      - ./modloader/Plugins:/home/steam/serverfiles/StarRupture/Binaries/Win64/Plugins
+      #- ./Password.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/Password.json
+      #
       - ./saves:/home/steam/serverfiles/StarRupture/Saved/SaveGames
-      - ./Password.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/Password.json
       - ./PlayerPassword.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/PlayerPassword.json
+      - ./modloader/dwmapi.dll:/home/steam/serverfiles/StarRupture/Binaries/Win64/dwmapi.dll
+      #
+      - ./DSSettings.txt:/home/steam/serverfiles/StarRupture/Binaries/Win64/DSSettings.txt
     env_file:
       - .env
     healthcheck:

@@ -1,7 +1,7 @@
 {
-  "SessionName": "MySaveGame",
+  "SessionName": "sf.mcros.dk",
   "SaveGameInterval": "300",
-  "StartNewGame": "true",
-  "LoadSavedGame": "false",
+  "StartNewGame": "false",
+  "LoadSavedGame": "true",
   "SaveGameName": "AutoSave0.sav"
 }

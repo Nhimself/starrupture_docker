@@ -1,0 +1,185 @@
+[21:44:12.594] [INFO ] [T:00336] ======================================================
+[21:44:12.594] [INFO ] [T:00336]   StarRupture Mod Loader (dwmapi.dll proxy) loaded
+[21:44:12.594] [INFO ] [T:00336] ======================================================
+[21:44:12.594] [INFO ] [T:00336] Initializing dwmapi.dll proxy...
+[21:44:12.594] [INFO ] [T:00336] DwmapiProxy::Initialize() starting
+[21:44:12.594] [INFO ] [T:00336] Loading real dwmapi.dll from: C:\windows\system32\dwmapi.dll
+[21:44:12.594] [INFO ] [T:00336] Real dwmapi.dll loaded at 0x6FFFFC920000
+[21:44:12.594] [INFO ] [T:00336] PE export table: base ordinal 100, 84 function slots
+[21:44:12.594] [INFO ] [T:00336] Export resolution complete: 84 resolved, 0 null slots skipped
+[21:44:12.594] [INFO ] [T:00336] Dwmapi proxy initialized successfully
+[21:44:12.597] [INFO ] [T:00336] DllMain on main thread -- deferring init via QueueUserAPC
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] Game version OK: ++Earth20+Release-EA-Hotfix0-CL-115725
+[21:44:12.614] [INFO ] [T:00340] Process ID: 332
+[21:44:12.614] [INFO ] [T:00340] Executable: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\StarRuptureServerEOS-Win64-Shipping.exe
+[21:44:12.614] [INFO ] [T:00340] Working directory: Z:\home\steam\serverfiles
+[21:44:12.614] [INFO ] [T:00340] Command line: ./StarRupture/Binaries/Win64/StarRuptureServerEOS-Win64-Shipping.exe -Log -Port=7777 -RCWebControlDisable -RCWebInterfaceDisable -SessionName=sr.mcros.dk -SaveGameInterval=300 -MULTIHOME=0.0.0.0 -RconPort=27015 -RconPassword=Ai4hZgT9LBMxcN9x_ybt9_EWfUZumL
+[21:44:12.614] [INFO ] [T:00340] Main module base: 0x140000000
+[21:44:12.614] [INFO ] [T:00340] Main module size: 0xE045000 (229652 KB)
+[21:44:12.614] [INFO ] [T:00340] Main module entry: 0x149DCF970
+[21:44:12.614] [INFO ] [T:00340] OS version: Windows 10 or greater
+[21:44:12.614] [INFO ] [T:00340] OS type: Client/Workstation
+[21:44:12.614] [INFO ] [T:00340] System RAM: 62758 MB total, 58567 MB available
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] Logger initialized (using Log:: backend)
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] ======================================
+[21:44:12.614] [INFO ] [T:00340] [ModLoader]   AlienX's Mod Loader Starting
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] ======================================
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] Config manager initialized: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\Plugins\config
+[21:44:12.614] [INFO ] [T:00340] [ModLoader] Plugin manager initialized
+[21:44:12.614] [INFO ] [T:00340] [AutoUpdate] Starting auto-update check (current version: release-2026.03.25-144558)
+[21:44:12.614] [INFO ] [T:00340] [AutoUpdate] Manifest URL: https://github.com/AlienXAXS/StarRupture-ModLoader/releases/latest/download/manifest-server.json (compiled-in default)
+[21:44:13.170] [INFO ] [T:00340] [AutoUpdate] Manifest lists 3 plugin(s)
+[21:44:13.170] [INFO ] [T:00340] [AutoUpdate] Already up to date (release-2026.03.25-144558)
+[21:44:13.170] [INFO ] [T:00340] [ModLoader] Installing core game hooks...
+[21:44:13.170] [INFO ] [T:00340] [ModLoader] [EngineInit] Installing engine initialization hooks...
+[21:44:13.170] [INFO ] [T:00340] [ModLoader] [EngineInit] Scanning for FEngineLoop::Init...
+[21:44:13.307] [INFO ] [T:00340] [ModLoader] [EngineInit] [OK] FEngineLoop::Init hook installed successfully
+[21:44:13.307] [INFO ] [T:00340] [ModLoader] [EngineInit] Scanning for UGameEngine::Init (fallback)...
+[21:44:13.453] [INFO ] [T:00340] [ModLoader] [EngineInit] [OK] UGameEngine::Init hook installed successfully
+[21:44:13.453] [INFO ] [T:00340] [ModLoader] [EngineInit] At least one engine init hook installed - engine ready detection active
+[21:44:13.453] [INFO ] [T:00340] [ModLoader] [EngineShutdown] Installing engine shutdown hooks...
+[21:44:13.453] [INFO ] [T:00340] [ModLoader] [EngineShutdown] Scanning for FEngineLoop::Exit...
+[21:44:13.540] [INFO ] [T:00340] [ModLoader] [EngineShutdown] [OK] FEngineLoop::Exit hook installed successfully
+[21:44:13.540] [INFO ] [T:00340] [ModLoader] [EngineShutdown] Scanning for UEngine::PreExit (fallback)...
+[21:44:13.636] [INFO ] [T:00340] [ModLoader] [EngineShutdown] [OK] UEngine::PreExit hook installed successfully
+[21:44:13.636] [INFO ] [T:00340] [ModLoader] [EngineInit] Installing spawner hooks...
+[21:44:13.636] [INFO ] [T:00340] [ModLoader] [MassSpawnerActivate] Installing hook...
+[21:44:13.871] [INFO ] [T:00340] [ModLoader] [MassSpawnerActivate] ActivateSpawner resolved to 0x148343DD0 (base+0x8343DD0)
+[21:44:13.872] [INFO ] [T:00340] [ModLoader] [MassSpawnerActivate] Hook installed successfully
+[21:44:13.872] [INFO ] [T:00340] [ModLoader] [MassSpawnerDeactivate] Installing hook...
+[21:44:13.977] [INFO ] [T:00336] [ModLoader] [EngineInit] FEngineLoop::Init called (#1)
+[21:44:13.977] [INFO ] [T:00336] [ModLoader] [EngineInit] Waiting for plugins to load before calling original...
+[21:44:14.020] [INFO ] [T:00340] [ModLoader] [MassSpawnerDeactivate] Found at 0x148343E10 (base+0x8343E10)
+[21:44:14.021] [INFO ] [T:00340] [ModLoader] [MassSpawnerDeactivate] Hook installed successfully
+[21:44:14.021] [INFO ] [T:00340] [ModLoader] [MassDoSpawning] Installing hook...
+[21:44:14.121] [INFO ] [T:00340] [ModLoader] [MassDoSpawning] Found at 0x145D74960 (base+0x5D74960)
+[21:44:14.121] [INFO ] [T:00340] [ModLoader] [MassDoSpawning] Hook installed successfully
+[21:44:14.121] [INFO ] [T:00340] [ModLoader] Waiting for engine initialization...
+[21:44:14.122] [INFO ] [T:00340] [ModLoader] Engine ready -- proceeding to load plugins
+[21:44:14.122] [INFO ] [T:00340] [ModLoader] Searching for plugins in: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\Plugins
+[21:44:14.122] [INFO ] [T:00340] [ModLoader] Loading plugin: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\Plugins\KeepTicking.dll
+[21:44:14.123] [INFO ] [T:00340] [ModLoader] Plugin info - Name: KeepTicking, Version: release-2026.03.25-144558, Author: AlienX
+[21:44:14.123] [INFO ] [T:00340] [Plugin:KeepTicking] Plugin initializing...
+[21:44:14.124] [INFO ] [T:00340] [Plugin:KeepTicking] ModCore initializing...
+[21:44:14.124] [INFO ] [T:00340] [Plugin:KeepTicking] FakePlayer: Spawn/despawn system ready
+[21:44:14.243] [INFO ] [T:00340] [Plugin:KeepTicking] [FakePlayer] UWorld::RemoveController found at 0x144A573A0
+[21:44:14.243] [INFO ] [T:00340] [ModLoader] [WorldBeginPlay] First ChimeraMain callback registered — installing hook now...
+[21:44:14.243] [INFO ] [T:00340] [ModLoader] [WorldBeginPlay] Installing hook...
+[21:44:14.243] [INFO ] [T:00340] [ModLoader] [WorldBeginPlay] Scanning for OnWorldBeginPlay...
+[21:44:14.363] [INFO ] [T:00340] [ModLoader] [WorldBeginPlay] Hook installed successfully (filtering for ChimeraMain worlds)
+[21:44:14.363] [INFO ] [T:00340] [ModLoader] [ExperienceLoadComplete] First callback registered — installing hook now...
+[21:44:14.363] [INFO ] [T:00340] [ModLoader] [ExperienceLoadComplete] Installing hook...
+[21:44:14.363] [INFO ] [T:00340] [ModLoader] [ExperienceLoadComplete] Scanning for UCrExperienceManagerComponent::OnExperienceLoadComplete...
+[21:44:14.547] [INFO ] [T:00340] [ModLoader] [ExperienceLoadComplete] UCrExperienceManagerComponent::OnExperienceLoadComplete found at 0x146E94450 (base+0x6E94450)
+[21:44:14.548] [INFO ] [T:00340] [ModLoader] [ExperienceLoadComplete] Hook installed successfully
+[21:44:14.548] [INFO ] [T:00340] [ModLoader] [EngineTick] First callback registered - installing hook now...
+[21:44:14.548] [INFO ] [T:00340] [ModLoader] [EngineTick] Installing UGameEngine::Tick hook...
+[21:44:14.623] [INFO ] [T:00340] [ModLoader] [EngineTick] UGameEngine::Tick found at 0x144211180 (base+0x4211180)
+[21:44:14.623] [INFO ] [T:00340] [ModLoader] [EngineTick] Hook installed successfully
+[21:44:14.623] [INFO ] [T:00340] [ModLoader] [PlayerJoined] First callback registered - installing hook now...
+[21:44:14.623] [INFO ] [T:00340] [ModLoader] [PlayerJoined] Installing hook...
+[21:44:14.623] [INFO ] [T:00340] [ModLoader] [PlayerJoined] Scanning for ACrGameModeBase::PostLogin...
+[21:44:14.811] [INFO ] [T:00340] [ModLoader] [PlayerJoined] ACrGameModeBase::PostLogin found at 0x146DCAFD0 (base+0x6DCAFD0)
+[21:44:14.811] [INFO ] [T:00340] [ModLoader] [PlayerJoined] Hook installed successfully
+[21:44:14.811] [INFO ] [T:00340] [ModLoader] [PlayerLeft] First callback registered - installing hook now...
+[21:44:14.811] [INFO ] [T:00340] [ModLoader] [PlayerLeft] Installing hook...
+[21:44:14.811] [INFO ] [T:00340] [ModLoader] [PlayerLeft] Scanning for ACrGameModeBase::Logout...
+[21:44:15.060] [INFO ] [T:00340] [ModLoader] [PlayerLeft] ACrGameModeBase::Logout found at 0x146DBDEC0 (base+0x6DBDEC0)
+[21:44:15.060] [INFO ] [T:00340] [ModLoader] [PlayerLeft] Hook installed successfully
+[21:44:15.060] [INFO ] [T:00340] [Plugin:KeepTicking] Plugin initialized
+[21:44:15.061] [INFO ] [T:00340] [ModLoader] Successfully loaded plugin: KeepTicking vrelease-2026.03.25-144558
+[21:44:15.061] [INFO ] [T:00340] [ModLoader] Loading plugin: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\Plugins\RailJunctionFixer.dll
+[21:44:15.062] [INFO ] [T:00340] [ModLoader] Plugin info - Name: RailJunctionFixer, Version: release-2026.03.25-144558, Author: Wilhelm & AlienX
+[21:44:15.062] [INFO ] [T:00340] [Plugin:RailJunctionFixer] Plugin initializing...
+[21:44:15.062] [INFO ] [T:00340] [Plugin:RailJunctionFixer] Scanning for UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay...
+[21:44:15.258] [INFO ] [T:00340] [Plugin:RailJunctionFixer] UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay found at 0x146F0E730 (base+0x6F0E730)
+[21:44:15.258] [INFO ] [T:00340] [ModLoader] [HooksInterface] Hook installed successfully: handle=0000000000000001, target=0x146F0E730
+[21:44:15.258] [INFO ] [T:00340] [Plugin:RailJunctionFixer] UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay hook installed successfully
+[21:44:15.258] [INFO ] [T:00340] [Plugin:RailJunctionFixer] UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay hook installed
+[21:44:15.258] [INFO ] [T:00340] [Plugin:RailJunctionFixer] Registered for engine init callback
+[21:44:15.258] [INFO ] [T:00340] [Plugin:RailJunctionFixer] Registered for engine shutdown callback
+[21:44:15.259] [INFO ] [T:00340] [ModLoader] Successfully loaded plugin: RailJunctionFixer vrelease-2026.03.25-144558
+[21:44:15.259] [INFO ] [T:00340] [ModLoader] Loading plugin: Z:\home\steam\serverfiles\StarRupture\Binaries\Win64\Plugins\ServerUtility.dll
+[21:44:15.260] [INFO ] [T:00340] [ModLoader] Plugin info - Name: ServerUtility, Version: release-2026.03.25-144558, Author: AlienX
+[21:44:15.260] [INFO ] [T:00340] [Plugin:ServerUtility] Plugin initialising...
+[21:44:15.260] [INFO ] [T:00340] [Plugin:ServerUtility] Engine initialised - scanning for UCrDedicatedServerSettingsComp::ParseSettings...
+[21:44:15.455] [INFO ] [T:00340] [Plugin:ServerUtility] Found ParseSettings at 0x146DCA130
+[21:44:15.455] [INFO ] [T:00340] [Plugin:ServerUtility] [ParseSettingsHook::Install] Installing hook at 0x146DCA130...
+[21:44:15.455] [INFO ] [T:00340] [ModLoader] [HooksInterface] Hook installed successfully: handle=0000000000000002, target=0x146DCA130
+[21:44:15.455] [INFO ] [T:00340] [Plugin:ServerUtility] [ParseSettingsHook::Install] Hook installed successfully (handle=0000000000000002)
+[21:44:15.455] [INFO ] [T:00340] [ModLoader] Successfully loaded plugin: ServerUtility vrelease-2026.03.25-144558
+[21:44:15.456] [INFO ] [T:00340] [ModLoader] Loaded 3 plugin(s) from Plugins
+[21:44:15.456] [INFO ] [T:00340] [ModLoader] Mod loader initialization complete
+[21:44:15.456] [INFO ] [T:00336] [ModLoader] [EngineInit] Plugins loaded — calling original Init now
+[21:44:15.456] [INFO ] [T:00336] [ModLoader] [EngineInit] UGameEngine::Init called (#2)
+[21:44:15.456] [INFO ] [T:00336] [ModLoader] [EngineInit] Waiting for plugins to load before calling original...
+[21:44:15.456] [INFO ] [T:00336] [ModLoader] [EngineInit] Plugins loaded — calling original Init now
+[21:44:15.546] [INFO ] [T:00336] [ModLoader] [EngineInit] *** ENGINE READY *** (via UGameEngine::Init)
+[21:44:15.546] [INFO ] [T:00336] [ModLoader] [EngineAllocator] Resolving FMemory::Malloc and FMemory::Free...
+[21:44:15.630] [INFO ] [T:00336] [ModLoader] [EngineAllocator] Resolved FMemory::Malloc =0x1412AB650 (from ref+17)
+[21:44:15.630] [INFO ] [T:00336] [ModLoader] [EngineAllocator] GMalloc global at0x14D09ABD8
+[21:44:15.653] [INFO ] [T:00336] [ModLoader] [EngineAllocator] Found FMemory::Free at0x14129B890 (exact pattern)
+[21:44:15.653] [INFO ] [T:00336] [ModLoader] [EngineAllocator] Smoke test PASSED
+[21:44:15.653] [INFO ] [T:00336] [ModLoader] [EngineAllocator] SUCCESS - FMemory::Malloc=0x1412AB650, FMemory::Free=0x14129B890
+[21:44:15.673] [INFO ] [T:00336] [ModLoader] UE log bridge active - messages will also appear in StarRupture.log
+[21:44:15.674] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Engine initialized
+[21:44:15.674] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Registered for experience-load-complete callback (rail socket scan)
+[21:44:15.674] [INFO ] [T:00336] [ModLoader] [ActorBeginPlay] First callback registered - installing hook now...
+[21:44:15.674] [INFO ] [T:00336] [ModLoader] [ActorBeginPlay] Installing hook...
+[21:44:15.781] [INFO ] [T:00336] [ModLoader] [ActorBeginPlay] Interior pattern matched at 0x143CD9390 (base+0x3CD9390) - reverse-scanning for function prologue...
+[21:44:15.782] [INFO ] [T:00336] [ModLoader] [ActorBeginPlay] AActor::BeginPlay entry at 0x143CD9350 (base+0x3CD9350), 64 bytes before interior match
+[21:44:15.782] [INFO ] [T:00336] [ModLoader] [ActorBeginPlay] Hook installed successfully
+[21:44:15.782] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Registered for actor-begin-play callback (TRACE diagnostics)
+[21:44:15.782] [INFO ] [T:00336] [Plugin:ServerUtility] [Rcon] Initialising RCON / Query subsystem...
+[21:44:15.782] [INFO ] [T:00336] [Plugin:ServerUtility] [Rcon] Query port : 27015
+[21:44:15.782] [INFO ] [T:00336] [Plugin:ServerUtility] [Rcon] Server name: sr.mcros.dk
+[21:44:15.810] [INFO ] [T:00336] [Plugin:ServerUtility] [RCON] FWindowsPlatformMisc::RequestExit resolved at 0x14143FF80
+[21:44:15.992] [INFO ] [T:00336] [Plugin:ServerUtility] [RCON] UCrSaveSubsystem::SaveNextSaveGame resolved at 0x146E5D050
+[21:44:15.993] [INFO ] [T:00336] [Plugin:ServerUtility] [Query] UDP A2S query server listening on port 27015
+[21:44:15.993] [INFO ] [T:00336] [Plugin:ServerUtility] [RCON] TCP RCON listening on port 27015
+[21:44:15.993] [INFO ] [T:00336] [Plugin:ServerUtility] [Rcon] Subsystem ready
+[21:44:15.994] [INFO ] [T:00336] [Plugin:ServerUtility] [ConsoleCtrl] Console control handler installed
+[21:44:15.994] [INFO ] [T:00336] [Plugin:ServerUtility] [RemoteVulnerabilityPatcher] Scanning for FHttpConnection::ProcessRequest...
+[21:44:16.059] [INFO ] [T:00336] [Plugin:ServerUtility] [RemoteVulnerabilityPatcher] Found FHttpConnection::ProcessRequest at 0x14291D6D0
+[21:44:16.060] [INFO ] [T:00336] [ModLoader] [HooksInterface] Hook installed successfully: handle=0000000000000003, target=0x14291D6D0
+[21:44:16.060] [INFO ] [T:00336] [Plugin:ServerUtility] [RemoteVulnerabilityPatcher] Hook installed successfully (handle=0000000000000003)
+[21:44:16.176] [INFO ] [T:00496] UE4SS loading disabled in modloader.ini
+[21:44:16.655] [INFO ] [T:00336] [ModLoader] [WorldBeginPlay]   Skipping ChimeraMain callbacks - not ChimeraMain world
+[21:44:16.837] [INFO ] [T:00336] [Plugin:RailJunctionFixer] UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay fired - this=000000001EA47FC0, World=0000000002292EC0 'DedicatedServerStart'
+[21:44:16.838] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Initializing LogisticsFragmentFixer...
+[21:44:16.841] [INFO ] [T:00336] [Plugin:RailJunctionFixer] CrLogisticsSocketsFragment at 0x7FFFDE577F98
+[21:44:16.841] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Current SuperStruct at 0x7FFFDE4F3238 (MassFragment)
+[21:44:16.841] [INFO ] [T:00336] [Plugin:RailJunctionFixer] CrMassSavableFragment at 0x7FFFDE5463F8
+[21:44:16.842] [INFO ] [T:00336] [Plugin:RailJunctionFixer]   IsChildOf(CrMassSavableFragment) = TRUE
+[21:44:16.842] [INFO ] [T:00336] [Plugin:RailJunctionFixer] SUCCESS - CrLogisticsSocketsFragment now inherits from CrMassSavableFragment
+[21:44:16.842] [INFO ] [T:00336] [Plugin:RailJunctionFixer]        IsChildOf checks will now work correctly for save system
+[21:44:17.729] [INFO ] [T:00336] [ModLoader] [ExperienceLoadComplete] UCrExperienceManagerComponent::OnExperienceLoadComplete called (#1)
+[21:44:17.733] [INFO ] [T:00336] [Plugin:KeepTicking] [ModCore] ExperienceLoadComplete fired — starting map traversal
+[21:44:17.733] [WARN ] [T:00336] [Plugin:KeepTicking] [ModCore] Fake player not active, cannot start traversal
+[21:44:17.733] [INFO ] [T:00336] [Plugin:RailJunctionFixer] ExperienceLoadComplete: Experience fully loaded - running junction repair
+[21:44:18.757] [INFO ] [T:00336] [Plugin:ServerUtility]   SessionName  = sr.mcros.dk
+[21:44:18.760] [INFO ] [T:00336] [Plugin:ServerUtility]   SaveGameName = AutoSave0.sav
+[21:44:18.760] [INFO ] [T:00336] [Plugin:ServerUtility]   SaveGameInterval = 300 seconds
+[21:44:18.761] [INFO ] [T:00336] [Plugin:ServerUtility] [SaveGameExists] Root save path: Z:\home\steam\serverfiles\StarRupture
+[21:44:18.761] [INFO ] [T:00336] [Plugin:ServerUtility] [SaveGameExists] Full save file path: Z:\home\steam\serverfiles\StarRupture\Saved\SaveGames\sr.mcros.dk\AutoSave0.sav
+[21:44:18.761] [INFO ] [T:00336] [Plugin:ServerUtility] [SaveGameExists] Save file found! Will load existing session.
+[21:44:18.761] [INFO ] [T:00336] [Plugin:ServerUtility]   AutoSave found   = yes  ->  loading existing session
+[21:44:18.761] [INFO ] [T:00336] [Plugin:ServerUtility] [Hook_ParseSettings] Settings applied (SaveGameInterval=300, bStartNewGame=false, bLoadSavedGame=true)
+[21:44:23.951] [INFO ] [T:00336] [ModLoader] [WorldBeginPlay] ChimeraMain world begin play detected (#2)
+[21:44:24.138] [INFO ] [T:00336] [Plugin:RailJunctionFixer] UCrMassEntityConfigLoaderSubsystem::OnWorldBeginPlay fired - this=000000002FA63380, World=0000000026C08020 'ChimeraMain'
+[21:44:24.138] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Initializing LogisticsFragmentFixer...
+[21:44:24.142] [INFO ] [T:00336] [Plugin:RailJunctionFixer] CrLogisticsSocketsFragment at 0x7FFFDE577F98
+[21:44:24.142] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Current SuperStruct at 0x7FFFDE5463F8 (CrMassSavableFragment)
+[21:44:24.142] [INFO ] [T:00336] [Plugin:RailJunctionFixer] CrMassSavableFragment at 0x7FFFDE5463F8
+[21:44:24.142] [INFO ] [T:00336] [Plugin:RailJunctionFixer] Already reparented - nothing to do
+[21:44:25.111] [INFO ] [T:00336] [Plugin:KeepTicking] ChimeraMain world begin play - spawning fake player...
+[21:44:25.112] [INFO ] [T:00336] [Plugin:KeepTicking] [FakePlayer] Debug visible mode DISABLED
+[21:44:25.178] [INFO ] [T:00336] [ModLoader] [ExperienceLoadComplete] UCrExperienceManagerComponent::OnExperienceLoadComplete called (#2)
+[21:44:25.178] [INFO ] [T:00336] [Plugin:KeepTicking] [ModCore] ExperienceLoadComplete fired — starting map traversal
+[21:44:25.178] [WARN ] [T:00336] [Plugin:KeepTicking] [ModCore] Fake player not active, cannot start traversal
+[21:44:25.178] [INFO ] [T:00336] [Plugin:RailJunctionFixer] ExperienceLoadComplete: Experience fully loaded - running junction repair
+[21:44:25.433] [INFO ] [T:00336] [Plugin:RailJunctionFixer]   Signaling 85 socket entities with 'CrLogisticsSocketsSignal'...
+[21:44:25.434] [INFO ] [T:00336] [Plugin:RailJunctionFixer]   Socket signal sent to 85 entities
+[21:44:25.434] [INFO ] [T:00336] [Plugin:RailJunctionFixer] SignalSocketEntities: complete
+[21:50:37.064] [INFO ] [T:00336] [ModLoader] [PlayerJoined] ACrGameModeBase::PostLogin called (#1)
+[21:51:10.056] [INFO ] [T:00336] [ModLoader] [PlayerLeft] ACrGameModeBase::Logout called (#1)

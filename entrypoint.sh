@@ -9,6 +9,7 @@ SAVE_GAME_INTERVAL="${SAVE_GAME_INTERVAL:-300}"
 RCON_PORT="${RCON_PORT:-}"
 RCON_PASSWORD="${RCON_PASSWORD:-}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
+INSTALL_MODLOADER="${INSTALL_MODLOADER:-true}"
 
 STEAMCMD="/home/steam/steamcmd/steamcmd.sh"
 SERVER_DIR="/home/steam/serverfiles"
@@ -61,7 +62,7 @@ if [ "$UPDATE_ON_START" = "true" ] || [ "$NEEDS_INSTALL" = "true" ]; then
         +@sSteamCmdForcePlatformType windows \
         +force_install_dir "$SERVER_DIR" \
         +login anonymous \
-        +app_update 3809400 validate \
+        +app_update 3809400 \
         +quit
     echo "[entrypoint] Update complete."
 fi
@@ -89,63 +90,54 @@ if [ ! -f "$SERVER_DIR/$SERVER_EXE" ]; then
 fi
 
 
-# Required for ModLoader DLL proxy — must be set before any server launch
-export WINEDLLOVERRIDES="dwmapi=n,b"
-
 SERVER_EXE_DIR="$SERVER_DIR/StarRupture/Binaries/Win64"
 PLUGINS_CONFIG_DIR="$SERVER_EXE_DIR/Plugins/config"
 
-# --- Install ModLoader (if not already installed) ---
-if [ ! -f "$SERVER_EXE_DIR/dwmapi.dll" ]; then
-    echo "[entrypoint] Installing StarRupture ModLoader..."
-    MODLOADER_URL=$(wget -qO- https://api.github.com/repos/AlienXAXS/StarRupture-ModLoader/releases/latest \
-        | python3 -c "import sys,json; assets=json.load(sys.stdin)['assets']; print(next(a['browser_download_url'] for a in assets if 'Server' in a['name'] and a['name'].endswith('.zip')))")
-    wget -q "$MODLOADER_URL" -O /tmp/modloader.zip
-    unzip -q /tmp/modloader.zip -d "$SERVER_EXE_DIR"
-    rm /tmp/modloader.zip
-    echo "[entrypoint] ModLoader installed."
-fi
+if [ "$INSTALL_MODLOADER" = "true" ]; then
+    # Required for ModLoader DLL proxy — must be set before any server launch
+    export WINEDLLOVERRIDES="dwmapi=n,b"
 
-# --- Bootstrap: first launch to let the ModLoader generate plugin config files ---
-# Plugins are disabled by default on first run. We start the server briefly,
-# wait for the INI files to appear, then kill it and enable all plugins before
-# the real launch below.
-if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
-    echo "[entrypoint] First run detected — bootstrapping ModLoader plugin configs..."
-    cd "$SERVER_DIR"
-    xvfb-run -a "$PROTON_DIR/proton" run "./$SERVER_EXE" -Log &
-    BOOTSTRAP_PID=$!
-
-    echo "[entrypoint] Waiting for plugin config files to be generated (up to 120s)..."
-    WAIT=0
-    until [ -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ] || [ "$WAIT" -ge 120 ]; do
-        sleep 2
-        WAIT=$((WAIT + 2))
-    done
-
-    kill "$BOOTSTRAP_PID" 2>/dev/null || true
-    wait "$BOOTSTRAP_PID" 2>/dev/null || true
-    BOOTSTRAP_PID=""
-
+    # --- Bootstrap: first launch to let the ModLoader generate plugin config files ---
+    # Plugins are disabled by default on first run. We start the server briefly,
+    # wait for the INI files to appear, then kill it and enable all plugins before
+    # the real launch below.
     if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
-        echo "[entrypoint] WARNING: Bootstrap timed out — plugin configs were not generated. Plugins may be inactive."
-    else
-        echo "[entrypoint] Bootstrap complete."
-    fi
-fi
+        echo "[entrypoint] First run detected — bootstrapping ModLoader plugin configs..."
+        cd "$SERVER_DIR"
+        xvfb-run -a "$PROTON_DIR/proton" run "./$SERVER_EXE" -Log &
+        BOOTSTRAP_PID=$!
 
-# --- Enable all server plugins ---
-mkdir -p "$PLUGINS_CONFIG_DIR"
-for PLUGIN in KeepTicking RailJunctionFixer ServerUtility; do
-    INI_FILE="$PLUGINS_CONFIG_DIR/$PLUGIN.ini"
-    if [ -f "$INI_FILE" ]; then
-        sed -i 's/^Enabled=0/Enabled=1/' "$INI_FILE"
-    else
-        # Safety fallback: create if still missing after bootstrap
-        printf "[Plugin]\nEnabled=1\n" > "$INI_FILE"
+        echo "[entrypoint] Waiting for plugin config files to be generated (up to 120s)..."
+        WAIT=0
+        until [ -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ] || [ "$WAIT" -ge 120 ]; do
+            sleep 2
+            WAIT=$((WAIT + 2))
+        done
+
+        kill "$BOOTSTRAP_PID" 2>/dev/null || true
+        wait "$BOOTSTRAP_PID" 2>/dev/null || true
+        BOOTSTRAP_PID=""
+
+        if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
+            echo "[entrypoint] WARNING: Bootstrap timed out — plugin configs were not generated. Plugins may be inactive."
+        else
+            echo "[entrypoint] Bootstrap complete."
+        fi
     fi
-    echo "[entrypoint] Plugin enabled: $PLUGIN"
-done
+
+    # --- Enable all server plugins ---
+    for PLUGIN in KeepTicking RailJunctionFixer ServerUtility; do
+        INI_FILE="$PLUGINS_CONFIG_DIR/$PLUGIN.ini"
+        if [ -f "$INI_FILE" ]; then
+            sed -i 's/^Enabled=0/Enabled=1/' "$INI_FILE"
+            echo "[entrypoint] Plugin enabled: $PLUGIN"
+        else
+            echo "[entrypoint] WARNING: $PLUGIN config not found — plugin will not be active this run."
+        fi
+    done
+else
+    echo "[entrypoint] INSTALL_MODLOADER=false — skipping ModLoader install."
+fi
 
 # --- Build server launch arguments ---
 LAUNCH_ARGS=(
