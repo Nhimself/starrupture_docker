@@ -1,3 +1,7 @@
+networks:
+  monitoring:
+    external: true  # shared monitoring network — created by prometheus_grafana/docker-compose.yml
+
 services:
   starrupture:
     build: .
@@ -35,9 +39,15 @@ services:
     deploy:
       resources:
         limits:
-          memory: 16G
+          memory: 20G
+          cpus: '1.00'
         reservations:
-          memory: 8G
+          memory: 10G
+          cpus: '0.50'
+    labels:
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=8000"
+      - "prometheus.io/path=/metrics"
 
 volumes:
   starrupture-data:
