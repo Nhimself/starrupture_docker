@@ -4,8 +4,6 @@ set -e
 # --- Configuration from environment ---
 SERVER_PORT="${SERVER_PORT:-7777}"
 MULTIHOME="${MULTIHOME:-}"
-SESSION_NAME="${SESSION_NAME:-My StarRupture Server}"
-SAVE_GAME_INTERVAL="${SAVE_GAME_INTERVAL:-300}"
 RCON_PORT="${RCON_PORT:-}"
 RCON_PASSWORD="${RCON_PASSWORD:-}"
 UPDATE_ON_START="${UPDATE_ON_START:-true}"
@@ -14,10 +12,12 @@ INSTALL_MODLOADER="${INSTALL_MODLOADER:-true}"
 STEAMCMD="/home/steam/steamcmd/steamcmd.sh"
 SERVER_DIR="/home/steam/serverfiles"
 PROTON_DIR="/home/steam/proton"
-SERVER_EXE="StarRupture/Binaries/Win64/StarRuptureServerEOS-Win64-Shipping.exe"
+SERVER_EXE="StarRuptureServerEOS.exe"
+SERVER_EXE_DIR="$SERVER_DIR/StarRupture/Binaries/Win64"
+SHIPPING_EXE_NAME="StarRuptureServerEOS-Win64-Shipping.exe"
 
 # Proton environment
-export STEAM_COMPAT_DATA_PATH="${SERVER_DIR}/compatdata"
+export STEAM_COMPAT_DATA_PATH="${SERVER_DIR}/compatdata/3809400"
 export STEAM_COMPAT_CLIENT_INSTALL_PATH="/home/steam/steamcmd"
 
 # --- Signal handling for graceful shutdown ---
@@ -31,11 +31,15 @@ shutdown() {
     if [ -n "$LOG_PID" ]; then
         kill "$LOG_PID" 2>/dev/null || true
     fi
-    # BOOTSTRAP_PID is set during first-run bootstrap; SERVER_PID during normal run
     for PID in "$BOOTSTRAP_PID" "$SERVER_PID"; do
         if [ -n "$PID" ]; then
             kill -SIGINT "$PID" 2>/dev/null || true
-            wait "$PID" 2>/dev/null || true
+            # Give the process up to 25s to shut down gracefully before forcing
+            for _ in $(seq 1 25); do
+                kill -0 "$PID" 2>/dev/null || break
+                sleep 1
+            done
+            kill -9 "$PID" 2>/dev/null || true
         fi
     done
     echo "[entrypoint] Server stopped."
@@ -67,6 +71,36 @@ if [ "$UPDATE_ON_START" = "true" ] || [ "$NEEDS_INSTALL" = "true" ]; then
     echo "[entrypoint] Update complete."
 fi
 
+# --- steam_appid.txt ---
+# Required by the BootstrapPackagedGame launcher (StarRuptureServerEOS.exe) so Wine's
+# steam.exe stub can identify the app without a real Steam client session.
+echo "3809400" > "$SERVER_DIR/steam_appid.txt"
+
+# --- DSSettings.txt ---
+# Controls session name, save game loading, and auto-save interval.
+# CLI args for these no longer work after the major game update.
+# Auto-generated with defaults on first run; leave untouched on subsequent runs
+# so the server always loads cleanly without requiring a flag-switching dance.
+# To use your own file: uncomment the DSSettings.txt bind mount in docker-compose.yml.
+DS_SETTINGS="$SERVER_EXE_DIR/DSSettings.txt"
+DEFAULT_SESSION="MySaveGame"
+
+if [ ! -f "$DS_SETTINGS" ]; then
+    echo "[entrypoint] No DSSettings.txt found — creating default (session: $DEFAULT_SESSION)..."
+    cat > "$DS_SETTINGS" << EOF
+{
+  "SessionName": "$DEFAULT_SESSION",
+  "SaveGameInterval": "300",
+  "StartNewGame": "false",
+  "LoadSavedGame": "true",
+  "SaveGameName": "AutoSave0.sav"
+}
+EOF
+    echo "[entrypoint] DSSettings.txt created."
+else
+    echo "[entrypoint] DSSettings.txt present — skipping generation."
+fi
+
 # --- Initialize Proton prefix ---
 mkdir -p "$STEAM_COMPAT_DATA_PATH"
 
@@ -81,16 +115,16 @@ if [ ! -d "$STEAM_COMPAT_DATA_PATH/pfx" ]; then
     echo "[entrypoint] Proton prefix initialized."
 fi
 
-# --- Verify server binary exists ---
-# Catches edge cases where SteamCMD succeeded but the binary is still missing.
+# --- Verify server binaries exist ---
 if [ ! -f "$SERVER_DIR/$SERVER_EXE" ]; then
-    echo "[entrypoint] ERROR: Server binary not found at $SERVER_DIR/$SERVER_EXE"
-    echo "[entrypoint] SteamCMD reported success but the binary is missing — check the SteamCMD output above."
+    echo "[entrypoint] ERROR: Launcher not found at $SERVER_DIR/$SERVER_EXE"
+    exit 1
+fi
+if [ ! -f "$SERVER_DIR/StarRupture/Binaries/Win64/$SHIPPING_EXE_NAME" ]; then
+    echo "[entrypoint] ERROR: Shipping binary not found at $SERVER_DIR/StarRupture/Binaries/Win64/$SHIPPING_EXE_NAME"
     exit 1
 fi
 
-
-SERVER_EXE_DIR="$SERVER_DIR/StarRupture/Binaries/Win64"
 PLUGINS_CONFIG_DIR="$SERVER_EXE_DIR/Plugins/config"
 
 if [ "$INSTALL_MODLOADER" = "true" ]; then
@@ -104,7 +138,7 @@ if [ "$INSTALL_MODLOADER" = "true" ]; then
     if [ ! -f "$PLUGINS_CONFIG_DIR/KeepTicking.ini" ]; then
         echo "[entrypoint] First run detected — bootstrapping ModLoader plugin configs..."
         cd "$SERVER_DIR"
-        xvfb-run -a "$PROTON_DIR/proton" run "./$SERVER_EXE" -Log &
+        xvfb-run -a "$PROTON_DIR/proton" waitforexitandrun "./$SERVER_EXE" -Log &
         BOOTSTRAP_PID=$!
 
         echo "[entrypoint] Waiting for plugin config files to be generated (up to 120s)..."
@@ -145,8 +179,6 @@ LAUNCH_ARGS=(
     -Port="$SERVER_PORT"
     -RCWebControlDisable
     -RCWebInterfaceDisable
-    -SessionName="$SESSION_NAME"
-    -SaveGameInterval="$SAVE_GAME_INTERVAL"
 )
 
 # Add MULTIHOME if set
@@ -171,33 +203,54 @@ fi
 echo "[entrypoint] Starting StarRupture Dedicated Server..."
 echo "[entrypoint]   Port:      $SERVER_PORT"
 echo "[entrypoint]   Multihome: ${MULTIHOME:-<not set>}"
-echo "[entrypoint]   Session:   $SESSION_NAME"
 echo "[entrypoint]   RCON port: ${RCON_PORT:-<disabled>}"
 
 cd "$SERVER_DIR"
 
-# Use xvfb-run for headless display, then launch via Proton
-xvfb-run -a "$PROTON_DIR/proton" run "./$SERVER_EXE" "${LAUNCH_ARGS[@]}" &
-SERVER_PID=$!
+# Launch via the official launcher. StarRuptureServerEOS.exe is a bootstrap launcher —
+# it spawns StarRuptureServerEOS-Win64-Shipping.exe and then exits. So we must not
+# track the launcher PID; instead we wait for the Shipping process to appear and
+# monitor that directly.
+LAUNCH_TIME=$(date +%s)
+xvfb-run -a "$PROTON_DIR/proton" waitforexitandrun "./$SERVER_EXE" "${LAUNCH_ARGS[@]}"
+echo "[entrypoint] Launcher exited — waiting for Shipping process to appear (up to 60s)..."
 
-echo "[entrypoint] Server launched with PID $SERVER_PID, waiting for log output..."
-
-# Wait for the log file to appear, then tail it to stdout
+SHIPPING_PID=""
 WAIT_COUNT=0
-while [ ! -f "$SERVER_LOG" ] && [ "$WAIT_COUNT" -lt 60 ] && kill -0 "$SERVER_PID" 2>/dev/null; do
+while [ "$WAIT_COUNT" -lt 60 ]; do
+    SHIPPING_PID=$(pgrep -f "$SHIPPING_EXE_NAME" | head -1)
+    [ -n "$SHIPPING_PID" ] && break
+    sleep 1
+    WAIT_COUNT=$((WAIT_COUNT + 1))
+done
+
+if [ -z "$SHIPPING_PID" ]; then
+    echo "[entrypoint] ERROR: Shipping process never appeared after 60s — launcher may have failed."
+    exit 1
+fi
+echo "[entrypoint] Shipping process running with PID $SHIPPING_PID"
+
+# Wait for a fresh log file (the game rotates on each start)
+WAIT_COUNT=0
+while [ "$WAIT_COUNT" -lt 60 ]; do
+    if [ -f "$SERVER_LOG" ] && [ "$(date -r "$SERVER_LOG" +%s 2>/dev/null || echo 0)" -ge "$LAUNCH_TIME" ]; then
+        break
+    fi
     sleep 1
     WAIT_COUNT=$((WAIT_COUNT + 1))
 done
 
 if [ -f "$SERVER_LOG" ]; then
     echo "[entrypoint] Streaming server log to stdout..."
-    tail -n 0 -f "$SERVER_LOG" &
+    tail -n 0 -F "$SERVER_LOG" &
     LOG_PID=$!
 else
     echo "[entrypoint] WARNING: Server log file not found after 60s, cannot stream logs."
 fi
 
-# Wait for server process (allows signal handling)
-# Use || to prevent set -e from exiting before we can capture and log the exit code
-wait "$SERVER_PID" && EXIT_CODE=0 || EXIT_CODE=$?
-echo "[entrypoint] Server process exited with code $EXIT_CODE"
+# Wait on the Shipping process directly
+SERVER_PID="$SHIPPING_PID"
+while kill -0 "$SERVER_PID" 2>/dev/null; do
+    sleep 5
+done
+echo "[entrypoint] Server process exited."

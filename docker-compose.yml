@@ -16,16 +16,19 @@ services:
       - "${RCON_PORT:-27015}:${RCON_PORT:-27015}/udp"
     volumes:
       - starrupture-data:/home/steam/serverfiles
-      # Save games are bind-mounted to a local folder so they survive "docker compose down -v"
-      # or any accidental volume wipe. Back this folder up externally.
+      # Modloader DLLs — broken after game update; game now reads DSSettings.txt natively.
       - ./modloader/Plugins:/home/steam/serverfiles/StarRupture/Binaries/Win64/Plugins
-      #- ./Password.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/Password.json
-      #
-      - ./saves:/home/steam/serverfiles/StarRupture/Saved/SaveGames
-      - ./PlayerPassword.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/PlayerPassword.json
       - ./modloader/dwmapi.dll:/home/steam/serverfiles/StarRupture/Binaries/Win64/dwmapi.dll
-      #
-      - ./DSSettings.txt:/home/steam/serverfiles/StarRupture/Binaries/Win64/DSSettings.txt
+      # Password file(s)
+      - ./Password.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/Password.json
+      - ./PlayerPassword.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/PlayerPassword.json
+      # Save games — bind-mounted so they survive "docker compose down -v".
+      # Place saves under ./Saved/<SessionName>/AutoSave0.sav to match DSSettings.txt.
+      - ./Saved:/home/steam/serverfiles/StarRupture/Saved/SaveGames
+      # DSSettings.txt — alongside StarRuptureServerEOS.exe at the server root
+      #- ./DSSettings.txt:/home/steam/serverfiles/StarRupture/Binaries/Win64/DSSettings.txt
+      # Directory for seeting the server log files
+      - ./Saved/Logs/:/home/steam/serverfiles/StarRupture/Saved/Logs/
     env_file:
       - .env
     healthcheck:
@@ -38,9 +41,9 @@ services:
     stop_grace_period: 30s
     deploy:
       resources:
-        limits:
-          memory: 20G
-          cpus: '1.00'
+        #limits:
+        #  memory: 25G
+        #  cpus: '1.00'
         reservations:
           memory: 10G
           cpus: '0.50'

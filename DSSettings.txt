@@ -1,5 +1,5 @@
 {
-  "SessionName": "sf.mcros.dk",
+  "SessionName": "sr.mcros.dk",
   "SaveGameInterval": "300",
   "StartNewGame": "false",
   "LoadSavedGame": "true",
