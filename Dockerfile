@@ -30,9 +30,13 @@ RUN mkdir -p /home/steam/proton && \
     rm /tmp/proton.tar.gz && \
     chown -R steam:steam /home/steam/proton
 
-# Create server directory
-RUN mkdir -p /home/steam/serverfiles && \
-    chown -R steam:steam /home/steam/serverfiles
+# Create server directory — pre-create all bind-mount target paths as steam:steam
+# so Docker does not create them as root on first boot (which would break SteamCMD).
+RUN mkdir -p \
+    /home/steam/serverfiles/StarRupture/Binaries/Win64/Plugins \
+    /home/steam/serverfiles/StarRupture/Saved/SaveGames \
+    /home/steam/serverfiles/StarRupture/Saved/Logs \
+    && chown -R steam:steam /home/steam/serverfiles
 
 # Copy scripts
 COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh

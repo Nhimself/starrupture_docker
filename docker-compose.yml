@@ -6,7 +6,7 @@ services:
   starrupture:
     build: .
     container_name: starrupture-server
-    restart: unless-stopped
+    #restart: unless-stopped
     ports:
       # UDP only — do NOT expose TCP (Remote Control exploit CVE)
       - "${SERVER_PORT:-7777}:${SERVER_PORT:-7777}/udp"
@@ -16,16 +16,21 @@ services:
       - "${RCON_PORT:-27015}:${RCON_PORT:-27015}/udp"
     volumes:
       - starrupture-data:/home/steam/serverfiles
-      # Save games are bind-mounted to a local folder so they survive "docker compose down -v"
-      # or any accidental volume wipe. Back this folder up externally.
-      - ./modloader/Plugins:/home/steam/serverfiles/StarRupture/Binaries/Win64/Plugins
-      #- ./Password.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/Password.json
-      #
-      - ./saves:/home/steam/serverfiles/StarRupture/Saved/SaveGames
-      - ./PlayerPassword.json:/home/steam/serverfiles/StarRupture/Binaries/Win64/PlayerPassword.json
-      - ./modloader/dwmapi.dll:/home/steam/serverfiles/StarRupture/Binaries/Win64/dwmapi.dll
-      #
-      - ./DSSettings.txt:/home/steam/serverfiles/StarRupture/Binaries/Win64/DSSettings.txt
+      # Modloader DLLs — disabled: modloader v1.4.0 crashes on CL-118629 (WorldBeginPlay hook pattern mismatch).
+      # Re-enable once a compatible modloader version is available.
+      #- ./modloader/Plugins:/home/steam/serverfiles/StarRupture/Binaries/Win64/Plugins
+      #- ./modloader/dwmapi.dll:/home/steam/serverfiles/StarRupture/Binaries/Win64/dwmapi.dll
+      #- ./modloader/modloader.ini:/home/steam/serverfiles/StarRupture/Binaries/Win64/modloader.ini
+      # Password files are generated at runtime from ADMIN_PASSWORD / PLAYER_PASSWORD in .env
+      # Save games — bind-mounted so they survive "docker compose down -v".
+      # Place saves under ./Saved/<SessionName>/AutoSave0.sav to match DSSettings.txt.
+      - ./Saved:/home/steam/serverfiles/StarRupture/Saved/SaveGames
+      # DSSettings.txt — alongside StarRuptureServerEOS.exe at the server root
+      - ./DSSettings.txt:/home/steam/serverfiles/DSSettings.txt
+      # Directory for seeting the server log files
+      - ./Saved/Logs/:/home/steam/serverfiles/StarRupture/Saved/Logs/
+      # ModLoader log file
+      - ./modloader/modloader.log:/home/steam/serverfiles/StarRupture/Binaries/Win64/modloader.log
     env_file:
       - .env
     healthcheck:
@@ -39,8 +44,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 20G
-          cpus: '1.00'
+        #  memory: 25G
+          cpus: '2.00'
         reservations:
           memory: 10G
           cpus: '0.50'

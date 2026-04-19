@@ -26,26 +26,15 @@ The first start downloads the game files and initialises the Proton prefix. This
 |---|---|---|
 | `MULTIHOME` | — | **Required.** Your server's public IP. Without this, clients see Docker's internal IP and cannot connect. |
 | `SERVER_PORT` | `7777` | Game port (UDP) |
-| `SESSION_NAME` | `My StarRupture Server` | Name shown in the server browser |
-| `SAVE_GAME_INTERVAL` | `300` | Auto-save interval in seconds |
 | `UPDATE_ON_START` | `true` | Run a SteamCMD update check on each container start |
 | `RCON_PORT` | `27015` | RCON port (TCP) and Steam Query port (UDP). Leave blank to disable. |
 | `RCON_PASSWORD` | — | RCON password. Leave blank to disable. |
+| `ADMIN_PASSWORD` | — | Server join password. Leave blank to disable. |
+| `PLAYER_PASSWORD` | — | In-game player password. Leave blank to disable. |
 
 ## Password files
 
-The server uses two password files for access control:
-
-- `Password.json` — server join password
-- `PlayerPassword.json` — in-game player password
-
-Generate fresh files at [starrupture-utilities.com/passwords](https://starrupture-utilities.com/passwords/), replace the files in the repo root, then restart the container:
-
-```bash
-docker compose restart
-```
-
-The files included in this repo use the placeholder password `changeme`. Replace them before going live.
+Set `ADMIN_PASSWORD` and/or `PLAYER_PASSWORD` in your `.env`. On each container start the entrypoint calls [starrupture-utilities.com/passwords](https://starrupture-utilities.com/passwords/) to encrypt the values and writes `Password.json` / `PlayerPassword.json` into the server directory automatically. Leave either variable blank to remove that password file.
 
 ## Save files
 
@@ -68,6 +57,61 @@ docker compose logs -f
 ```
 
 The server log (`StarRupture/Saved/Logs/StarRupture.log`) is also streamed to container stdout.
+
+## Mod updates
+
+`update-mods.sh` downloads the latest releases of the ModLoader and plugins, restarts the server, and verifies it loaded the correct map. If the server falls back to the `DedicatedServer` map it sends a Discord alert.
+
+**What it updates:**
+- [StarRupture-ModLoader](https://github.com/AlienXAXS/StarRupture-ModLoader) → `modloader/dwmapi.dll`
+- [StarRupture-Plugin-KeepTicking](https://github.com/AlienXAXS/StarRupture-Plugin-KeepTicking) → `modloader/Plugins/`
+- [StarRupture-Plugin-ServerUtility](https://github.com/AlienXAXS/StarRupture-Plugin-ServerUtility) → `modloader/Plugins/`
+
+### Dependencies
+
+```bash
+apt install curl jq unzip
+```
+
+### Configuration
+
+Add these to your `.env`:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_WEBHOOK_URL` | Optional | Webhook URL for map-load failure alerts |
+| `GITHUB_TOKEN` | Optional | GitHub PAT — avoids the 60 req/hr unauthenticated API rate limit |
+| `MAP_LOAD_TIMEOUT` | Optional | Seconds to wait for map load confirmation (default: `600`) |
+
+### Run manually
+
+```bash
+chmod +x update-mods.sh
+./update-mods.sh
+```
+
+### Schedule with systemd
+
+```bash
+sudo cp systemd/starrupture-mod-update.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now starrupture-mod-update.timer
+```
+
+The timer fires every **Wednesday at 04:00** local time. Edit `OnCalendar=` in `systemd/starrupture-mod-update.timer` to change the schedule, then run `sudo systemctl daemon-reload`.
+
+Check status and logs:
+
+```bash
+systemctl status starrupture-mod-update.timer
+journalctl -u starrupture-mod-update.service -f
+```
+
+Run immediately without waiting for the timer:
+
+```bash
+sudo systemctl start starrupture-mod-update.service
+```
 
 ## Tools
 

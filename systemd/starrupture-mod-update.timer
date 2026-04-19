@@ -1,0 +1,13 @@
+[Unit]
+Description=Run StarRupture mod update weekly (Wednesday 04:00)
+
+[Timer]
+# Fire every Wednesday at 04:00 local time
+OnCalendar=Wed *-*-* 04:00:00
+# If the system was off when the timer was due, run it within 10 min of next boot
+Persistent=true
+# Spread load — run anywhere within a 5-minute window
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
