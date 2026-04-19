@@ -5,3 +5,5 @@ AutoSave*.sav
 AutoSave*.met
 *.log
 DSSettings.txt
+*.pdb
+modloader/generated/*

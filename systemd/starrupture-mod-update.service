@@ -1,0 +1,16 @@
+[Unit]
+Description=StarRupture mod update (ModLoader + plugins)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/docker/starrupture_docker
+ExecStart=/opt/docker/starrupture_docker/update-mods.sh
+# Forward stdout/stderr to journald
+StandardOutput=journal
+StandardError=journal
+# Allow up to 15 min for a slow first boot + map load
+TimeoutStartSec=900
+# If the script exits non-zero, mark the service failed
+SuccessExitStatus=0
