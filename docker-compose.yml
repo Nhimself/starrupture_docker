@@ -30,7 +30,7 @@ services:
       # Directory for seeting the server log files
       - ./Saved/Logs/:/home/steam/serverfiles/StarRupture/Saved/Logs/
       # ModLoader log file
-      - ./modloader/modloader.log:/home/steam/serverfiles/StarRupture/Binaries/Win64/modloader.log
+      #- ./modloader/modloader.log:/home/steam/serverfiles/StarRupture/Binaries/Win64/modloader.log
     env_file:
       - .env
     healthcheck:
